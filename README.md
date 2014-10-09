@@ -13,18 +13,30 @@ The backupscript was initially based on the Image-based backup section of [openv
 
 ### Commandline parameters
 
---destination=\<backup destination\>
+**--full**
+
+	Start a new backup set with a fresh full backup. If --keep-count is
+	higher than 0, the current backup set will be moved to a folder which
+	is named based on the date the set was created (for ex. 2014.10.08).
+	It's recommended to do a full backup monthly and a incremental daily.
+
+**--inc or --incremental**
+
+	Start an incremental backup. Incremental means it creates a new snapshot
+	for each container and transfers only the changes.
+
+**--destination=\<backup destination\>**
 
 	Allows to specifiy an rsync-compatible backup destination.
 	Default is /vz/backup
 
---keep-count=\<keep count\>
+**--keep-count=\<keep count\>**
 
 	Allows to specify how many fullbackups including incremental
 	backups based on them are held on stock
 	Default is 0
 
---suspend=\<yes|no\>
+**--suspend=\<yes|no\>**
 
 	Allows to specify whether a container should be suspended during
 	snapshot creation or not. If yes is given, the containers memory
