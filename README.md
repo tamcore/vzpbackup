@@ -13,6 +13,10 @@ The backupscript was initially based on the Image-based backup section of [openv
 
 ### Commandline parameters
 
+--destination=\<backup destination\>
+
+	Allows to specifiy an rsync-compatible backup destination.
+	Default is /vz/backup
 
 ### Cronjob examples
 #### Fullbackup every 1st of month and incremental backup every day

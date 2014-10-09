@@ -1,7 +1,19 @@
 #!/bin/bash
 
-DESTINATION="root@bkup.tamcore.eu::backup"
+# DEFAULTS
+
+DESTINATION="/vz/backup"
 KEEP_COUNT=0
+
+# COMMANDLINE PARSING
+
+for param in "$@"; do
+  case $param in
+    --destination=*)
+      DESTINATION=${param#*=}
+    ;;
+  esac
+done
 
 # make sure we only run once
 test -f /var/run/vzbackup.pid && exit 0
