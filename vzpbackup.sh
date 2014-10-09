@@ -10,6 +10,7 @@ INC_BACKUP="no"
 
 # COMMANDLINE PARSING
 
+shopt -s extglob
 for param in "$@"; do
   case $param in
     -h|--help)
@@ -23,7 +24,7 @@ for param in "$@"; do
     --destination=*)
       DESTINATION=${param#*=}
     ;;
-    --keep-count=*)
+    --keep-count=+([0-9]))
       KEEP_COUNT=${param#*=}
     ;;
     --suspend=*)
@@ -37,6 +38,7 @@ for param in "$@"; do
     ;;
   esac
 done
+shopt -u extglob
 
 test "$SUSPEND" -eq "yes" && SUSPEND="" || SUSPEND="--skip-suspend"
 
