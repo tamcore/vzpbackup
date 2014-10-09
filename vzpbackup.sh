@@ -72,6 +72,6 @@ fi
 
 nice -n19 ionice -c3 rsync -avz -e "ssh -c arcfour" --{bwlimit=50000,ignore-times,delete-before,inplace,progress} $RSYNC_OPTS --exclude="????.??.??" --exclude="/vz/"{dump,lock,root,vztmp}"/*" /vz $DESTINATION
 
-if [ "$1" = "--full" ]; then
+if [ "$FULL_BACKUP" = "yes" ]; then
   ssh $( echo $DESTINATION | cut -d\: -f1 ) "find $( echo $DESTINATION | cut -d\: -f2 )/* -maxdepth 0 -iname '????.??.??' | head -n -$KEEP_COUNT | xargs rm -rf"
 fi
