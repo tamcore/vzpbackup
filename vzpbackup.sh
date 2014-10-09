@@ -10,13 +10,17 @@ KEEP_COUNT=0
 for param in "$@"; do
   case $param in
     -h|--help)
-      echo "Usage: $0 [--destination=<backup-destination>]"
+      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>]"
       echo "Defaults:"
       echo "- --destination=$DESTINATION"
+      echo "- --keep-count=$KEEP_COUNT"
       exit 0
     ;;
     --destination=*)
       DESTINATION=${param#*=}
+    ;;
+    --keep-count=*)
+      KEEP_COUNT=${param#*=}
     ;;
   esac
 done

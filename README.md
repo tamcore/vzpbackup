@@ -18,6 +18,12 @@ The backupscript was initially based on the Image-based backup section of [openv
 	Allows to specifiy an rsync-compatible backup destination.
 	Default is /vz/backup
 
+--keep-count=\<keep count\>
+
+	Allows to specify how many fullbackups including incremental
+	backups based on them are held on stock
+	Default is 0
+
 ### Cronjob examples
 #### Fullbackup every 1st of month and incremental backup every day
 ```
