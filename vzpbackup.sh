@@ -7,10 +7,12 @@ KEEP_COUNT=0
 SUSPEND="no"
 FULL_BACKUP="no"
 INC_BACKUP="no"
+VZCTL_PARAM=""
 
 # COMMANDLINE PARSING
 
 shopt -s extglob
+
 for param in "$@"; do
   case $param in
     -h|--help)
@@ -27,8 +29,9 @@ for param in "$@"; do
     --keep-count=+([0-9]))
       KEEP_COUNT=${param#*=}
     ;;
-    --suspend=*)
+    --suspend=+(yes|no))
       SUSPEND=${param#*=}
+      test "$SUSPEND" = "yes" || VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
     ;;
     --full)
       FULL_BACKUP="yes"
@@ -39,8 +42,6 @@ for param in "$@"; do
   esac
 done
 shopt -u extglob
-
-test "$SUSPEND" -eq "yes" && SUSPEND="" || SUSPEND="--skip-suspend"
 
 # make sure we only run once
 test -f /var/run/vzbackup.pid && exit 0
