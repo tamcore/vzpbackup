@@ -4,16 +4,18 @@
 
 DESTINATION="/vz/backup"
 KEEP_COUNT=0
+SUSPEND="no"
 
 # COMMANDLINE PARSING
 
 for param in "$@"; do
   case $param in
     -h|--help)
-      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>]"
+      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>]"
       echo "Defaults:"
       echo "- --destination=$DESTINATION"
       echo "- --keep-count=$KEEP_COUNT"
+      echo "- --suspend=$SUSPEND"
       exit 0
     ;;
     --destination=*)
@@ -22,8 +24,13 @@ for param in "$@"; do
     --keep-count=*)
       KEEP_COUNT=${param#*=}
     ;;
+    --suspend=*)
+      SUSPEND=${param#*=}
+    ;;
   esac
 done
+
+test "$SUSPEND" -eq "yes" && SUSPEND="" || SUSPEND="--skip-suspend"
 
 # make sure we only run once
 test -f /var/run/vzbackup.pid && exit 0
@@ -35,7 +42,7 @@ VZLIST="$( vzlist -H )"
 if [ "$1"  = "--inc" ] || [ "$1" = "--incremental" ]; then
   while read LINE; do
     read VEID REST <<< $LINE
-    vzctl snapshot $VEID --id $( uuidgen ) --skip-suspend
+    vzctl snapshot $VEID --id $( uuidgen ) $SUSPEND
   done <<< "$VZLIST"
 #  RSYNC_OPTS="--exclude=*/root.hdd/root.hdd"
 elif [ "$1"  = "--full" ]; then
@@ -45,7 +52,7 @@ elif [ "$1"  = "--full" ]; then
     while read UUID; do
       vzctl snapshot-delete $VEID --id $UUID
     done
-    vzctl snapshot $VEID --id $( uuidgen ) --skip-suspend 
+    vzctl snapshot $VEID --id $( uuidgen ) $SUSPEND
     vzctl compact $VEID
   done <<< "$VZLIST"
   if (( $KEEP_COUNT > 0 )); then
