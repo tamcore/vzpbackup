@@ -9,6 +9,12 @@ KEEP_COUNT=0
 
 for param in "$@"; do
   case $param in
+    -h|--help)
+      echo "Usage: $0 [--destination=<backup-destination>]"
+      echo "Defaults:"
+      echo "- --destination=$DESTINATION"
+      exit 0
+    ;;
     --destination=*)
       DESTINATION=${param#*=}
     ;;
