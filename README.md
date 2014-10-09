@@ -31,19 +31,6 @@ The backupscript was initially based on the Image-based backup section of [openv
 	is included in the snapshot.
 	Default is no
 
-### Cronjob examples
-#### Fullbackup every 1st of month and incremental backup every day
-```
-0 3 1 * * sh /vz/vzpbackup/vzpbackup.sh --full
-5 3 * * * sh /vz/backup.sh --inc
-```
-#### Fullbackup every 1st of week and incremental backup every day
-```
-0 3 * * 1 sh /vz/backup.sh --full
-5 3 * * * sh /vz/backup.sh --inc
-```
-
-
 ## RESTORE: vzprestore.sh (coming in the next months)
 
 ## AUTHOR
