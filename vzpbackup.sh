@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # DEFAULTS
-
 DESTINATION="/vz/backup"
 KEEP_COUNT=0
 SUSPEND="no"
@@ -10,9 +9,7 @@ INC_BACKUP="no"
 VZCTL_PARAM=""
 
 # COMMANDLINE PARSING
-
 shopt -s extglob
-
 for param in "$@"; do
   case $param in
     -h|--help)
@@ -43,11 +40,12 @@ for param in "$@"; do
 done
 shopt -u extglob
 
-# make sure we only run once
+# LOCKFILE
 test -f /var/run/vzbackup.pid && exit 0
 touch /var/run/vzbackup.pid
 trap "rm /var/run/vzbackup.pid" EXIT
 
+# SCRIPT
 VZLIST="$( vzlist -H )"
 
 if [ "$INC_BACKUP" = "yes" ]; then
