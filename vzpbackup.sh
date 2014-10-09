@@ -5,6 +5,8 @@
 DESTINATION="/vz/backup"
 KEEP_COUNT=0
 SUSPEND="no"
+FULL_BACKUP="no"
+INC_BACKUP="no"
 
 # COMMANDLINE PARSING
 
@@ -27,6 +29,12 @@ for param in "$@"; do
     --suspend=*)
       SUSPEND=${param#*=}
     ;;
+    --full)
+      FULL_BACKUP="yes"
+    ;;
+    --inc|--incremental)
+      INC_BACKUP="yes"
+    ;;
   esac
 done
 
@@ -39,13 +47,12 @@ trap "rm /var/run/vzbackup.pid" EXIT
 
 VZLIST="$( vzlist -H )"
 
-if [ "$1"  = "--inc" ] || [ "$1" = "--incremental" ]; then
+if [ "$INC_BACKUP" = "yes" ]; then
   while read LINE; do
     read VEID REST <<< $LINE
     vzctl snapshot $VEID --id $( uuidgen ) $SUSPEND
   done <<< "$VZLIST"
-#  RSYNC_OPTS="--exclude=*/root.hdd/root.hdd"
-elif [ "$1"  = "--full" ]; then
+elif [ "$FULL_BACKUP" = "yes" ]; then
   while read LINE; do
     read VEID REST <<< $LINE
     vzctl snapshot-list $VEID -H -o uuid | \
@@ -60,9 +67,6 @@ elif [ "$1"  = "--full" ]; then
     REF_DATE=$( expr $( date --date="$( vzctl snapshot-list $VEID -H -o date | head -n1 )" +%s ) - 86400 )
     RSYNC_OPTS="--backup --backup-dir=$( date --date="@$REF_DATE" +%Y.%m.%d )"
   fi
-else
-  echo "Usage: $0 [--inc(remental)|--full]"
-  exit 0
 fi
 
 nice -n19 ionice -c3 rsync -avz -e "ssh -c arcfour" --{bwlimit=50000,ignore-times,delete-before,inplace,progress} $RSYNC_OPTS --exclude="????.??.??" --exclude="/vz/"{dump,lock,root,vztmp}"/*" /vz $DESTINATION
