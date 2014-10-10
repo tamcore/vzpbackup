@@ -51,7 +51,7 @@ VZLIST="$( vzlist -H )"
 if [ "$INC_BACKUP" = "yes" ]; then
   while read LINE; do
     read VEID REST <<< $LINE
-    vzctl snapshot $VEID --id $( uuidgen ) $SUSPEND
+    vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
   done <<< "$VZLIST"
 elif [ "$FULL_BACKUP" = "yes" ]; then
   while read LINE; do
@@ -60,7 +60,7 @@ elif [ "$FULL_BACKUP" = "yes" ]; then
     while read UUID; do
       vzctl snapshot-delete $VEID --id $UUID
     done
-    vzctl snapshot $VEID --id $( uuidgen ) $SUSPEND
+    vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
     vzctl compact $VEID
   done <<< "$VZLIST"
   if (( $KEEP_COUNT > 0 )); then
