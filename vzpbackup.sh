@@ -7,13 +7,14 @@ SUSPEND="no"
 FULL_BACKUP="no"
 INC_BACKUP="no"
 VZCTL_PARAM=""
+BACKUP_VES=""
 
 # COMMANDLINE PARSING
 shopt -s extglob
 for param in "$@"; do
   case $param in
     -h|--help)
-      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>]"
+      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>] <--full or --inc(cremental)> <--all or VEIDs>"
       echo "Defaults:"
       echo "- --destination=$DESTINATION"
       echo "- --keep-count=$KEEP_COUNT"
@@ -36,9 +37,23 @@ for param in "$@"; do
     --inc|--incremental)
       INC_BACKUP="yes"
     ;;
+    --all)
+      for VEID in $( vzlist -H -o ctid ); do
+        BACKUP_VES="$BACKUP_VES $VEID"
+      done
+    ;;
+    +([0-9]))
+      BACKUP_VES="$BACKUP_VES $param"
+    ;;
   esac
 done
 shopt -u extglob
+
+# CHECKS
+if [ "$BACKUP_VES" = "" ]; then
+  echo "Neither --all or VEIDs is/are given.."
+  exit 1
+fi
 
 # LOCKFILE
 test -f /var/run/vzbackup.pid && exit 0
@@ -46,23 +61,20 @@ touch /var/run/vzbackup.pid
 trap "rm /var/run/vzbackup.pid" EXIT
 
 # SCRIPT
-VZLIST="$( vzlist -H )"
-
-if [ "$INC_BACKUP" = "yes" ]; then
-  while read LINE; do
-    read VEID REST <<< $LINE
+for VEID in $BACKUP_VES; do
+  if [ "$INC_BACKUP" = "yes" ]; then
     vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
-  done <<< "$VZLIST"
-elif [ "$FULL_BACKUP" = "yes" ]; then
-  while read LINE; do
-    read VEID REST <<< $LINE
+  elif [ "$FULL_BACKUP" = "yes" ]; then
     vzctl snapshot-list $VEID -H -o uuid | \
     while read UUID; do
       vzctl snapshot-delete $VEID --id $UUID
     done
     vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
     vzctl compact $VEID
-  done <<< "$VZLIST"
+  fi
+done
+
+if [ "$FULL_BACKUP" = "yes" ]; then
   if (( $KEEP_COUNT > 0 )); then
     echo "KEEP_COUNT > 0; keeping backup.."
     REF_DATE=$( expr $( date --date="$( vzctl snapshot-list $VEID -H -o date | head -n1 )" +%s ) - 86400 )
