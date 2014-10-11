@@ -55,6 +55,11 @@ if [ "$BACKUP_VES" = "" ]; then
   exit 1
 fi
 
+if [ "$INC_BACKUP" = "no" ] && [ "$FULL_BACKUP" = "no" ]; then
+  echo "Neither --inc(remental) or --full given.."
+  exit 1
+fi
+
 # LOCKFILE
 test -f /var/run/vzbackup.pid && exit 0
 touch /var/run/vzbackup.pid
