@@ -60,6 +60,11 @@ if [ "$INC_BACKUP" = "no" ] && [ "$FULL_BACKUP" = "no" ]; then
   exit 1
 fi
 
+if ! which vzctl &>/dev/null; then
+  echo "Couldn't find vzctl in \$PATH. Are you sure it's there?"
+  exit 1
+fi
+
 # LOCKFILE
 test -f /var/run/vzbackup.pid && exit 0
 touch /var/run/vzbackup.pid
