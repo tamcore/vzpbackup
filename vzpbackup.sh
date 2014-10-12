@@ -9,13 +9,14 @@ INC_BACKUP="no"
 VZCTL_PARAM=""
 BACKUP_VES=""
 RSYNC_SRCS=""
+TEMPLATES="yes"
 
 # COMMANDLINE PARSING
 shopt -s extglob
 for param in "$@"; do
   case $param in
     -h|--help)
-      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>] <--full or --inc(cremental)> <--all or VEIDs>"
+      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>] [--templates=<yes|no>] [--full or --inc(cremental)] [--all or VEIDs]"
       echo "Defaults:"
       echo "- --destination=$DESTINATION"
       echo "- --keep-count=$KEEP_COUNT"
@@ -30,13 +31,15 @@ for param in "$@"; do
     ;;
     --suspend=+(yes|no))
       SUSPEND=${param#*=}
-      test "$SUSPEND" = "yes" || VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
     ;;
     --full)
       FULL_BACKUP="yes"
     ;;
     --inc|--incremental)
       INC_BACKUP="yes"
+    ;;
+    --templates=+(yes|no))
+      TEMPLATES=${param#*=}
     ;;
     --all)
       for VEID in $( vzlist -H -o ctid ); do
@@ -72,6 +75,9 @@ touch /var/run/vzbackup.pid
 trap "rm /var/run/vzbackup.pid" EXIT
 
 # SCRIPT
+test "$SUSPEND" = "no" && VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
+test "$TEMPLATES" = "yes" && RSYNC_SRCS="$RSYNC_SRCS /vz/template"
+
 for VEID in $BACKUP_VES; do
   if [ -d "/vz/private/$VEID" ]; then
     if [ "$INC_BACKUP" = "yes" ]; then
