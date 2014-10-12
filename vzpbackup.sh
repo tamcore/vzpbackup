@@ -90,7 +90,7 @@ for VEID in $BACKUP_VES; do
       vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
       vzctl compact $VEID
     fi
-    RSYNC_SRCS=" /vz/private/$VEID"
+    RSYNC_SRCS="$RSYNC_SRCS /vz/private/$VEID"
   fi
 done
 
