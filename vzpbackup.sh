@@ -72,15 +72,17 @@ trap "rm /var/run/vzbackup.pid" EXIT
 
 # SCRIPT
 for VEID in $BACKUP_VES; do
-  if [ "$INC_BACKUP" = "yes" ]; then
-    vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
-  elif [ "$FULL_BACKUP" = "yes" ]; then
-    vzctl snapshot-list $VEID -H -o uuid | \
-    while read UUID; do
-      vzctl snapshot-delete $VEID --id $UUID
-    done
-    vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
-    vzctl compact $VEID
+  if [ -d "/vz/private/$VEID" ]; then
+    if [ "$INC_BACKUP" = "yes" ]; then
+      vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
+    elif [ "$FULL_BACKUP" = "yes" ]; then
+      vzctl snapshot-list $VEID -H -o uuid | \
+      while read UUID; do
+        vzctl snapshot-delete $VEID --id $UUID
+      done
+      vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
+      vzctl compact $VEID
+    fi
   fi
 done
 
