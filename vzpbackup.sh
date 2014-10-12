@@ -8,6 +8,7 @@ FULL_BACKUP="no"
 INC_BACKUP="no"
 VZCTL_PARAM=""
 BACKUP_VES=""
+RSYNC_SRCS=""
 
 # COMMANDLINE PARSING
 shopt -s extglob
@@ -83,6 +84,7 @@ for VEID in $BACKUP_VES; do
       vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
       vzctl compact $VEID
     fi
+    RSYNC_SRCS=" /vz/private/$VEID"
   fi
 done
 
@@ -94,7 +96,7 @@ if [ "$FULL_BACKUP" = "yes" ]; then
   fi
 fi
 
-nice -n19 ionice -c3 rsync -avz -e "ssh -c arcfour" --{bwlimit=50000,ignore-times,delete-before,inplace,progress} $RSYNC_OPTS --exclude="????.??.??" --exclude="/vz/"{dump,lock,root,vztmp}"/*" /vz $DESTINATION
+nice -n19 ionice -c3 rsync -avz -e "ssh -c arcfour" --{bwlimit=50000,ignore-times,delete-before,inplace,progress} $RSYNC_OPTS --exclude="????.??.??" $RSYNC_SRCS $DESTINATION
 
 if [ "$FULL_BACKUP" = "yes" ]; then
   ssh $( echo $DESTINATION | cut -d\: -f1 ) "find $( echo $DESTINATION | cut -d\: -f2 )/* -maxdepth 0 -iname '????.??.??' | head -n -$KEEP_COUNT | xargs rm -rf"
