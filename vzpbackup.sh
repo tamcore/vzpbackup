@@ -69,17 +69,22 @@ if ! which vzctl &>/dev/null; then
   exit 1
 fi
 
+if [ "$TEMPLATES" = "yes" ]; then
+  TEMPLATE_DIR=$( source /etc/vz/vz.conf; echo $TEMPLATE )
+  RSYNC_OPTS="$RSYNC_OPTS --include=$TEMPLATE_DIR/*"
+fi
+
+test "$SUSPEND" = "no" && VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
+
 # LOCKFILE
 test -f /var/run/vzbackup.pid && exit 0
 touch /var/run/vzbackup.pid
 trap "rm /var/run/vzbackup.pid" EXIT
 
 # SCRIPT
-test "$SUSPEND" = "no" && VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
-test "$TEMPLATES" = "yes" && RSYNC_OPTS="$RSYNC_OPTS --include=/vz/template/*"
-
 for VEID in $BACKUP_VES; do
-  if [ -d "/vz/private/$VEID" ]; then
+  if [ -f "/etc/vz/conf/$VEID.conf" ]; then
+    VE_PRIVATE=$( source /etc/vz/conf/$VEID.conf; echo $VE_PRIVATE )
     if [ "$INC_BACKUP" = "yes" ]; then
       vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
     elif [ "$FULL_BACKUP" = "yes" ]; then
@@ -90,7 +95,7 @@ for VEID in $BACKUP_VES; do
       vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
       vzctl compact $VEID
     fi
-    RSYNC_OPTS="$RSYNC_OPTS --include=/vz/private/$VEID"
+    RSYNC_OPTS="$RSYNC_OPTS --include=$VE_PRIVATE"
   fi
 done
 
