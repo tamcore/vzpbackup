@@ -42,7 +42,7 @@ for param in "$@"; do
       TEMPLATES=${param#*=}
     ;;
     --all)
-      for VEID in $( vzlist -H -o ctid ); do
+      for VEID in $( vzlist -a -H -o ctid ); do
         BACKUP_VES="$BACKUP_VES $VEID"
       done
     ;;
