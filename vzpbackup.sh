@@ -74,6 +74,10 @@ if [ "$TEMPLATES" = "yes" ]; then
   RSYNC_OPTS="$RSYNC_OPTS --include=$TEMPLATE_DIR/*"
 fi
 
+if [ "$INC_BACKUP" = "yes" ]; then
+  RSYNC_OPTS="$RSYNC_OPTS --exclude=$( VEID=; source /etc/vz/vz.conf; echo "$VE_PRIVATE*/root.hdd/root.hdd" )"
+fi
+
 test "$SUSPEND" = "no" && VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
 
 # LOCKFILE
