@@ -8,7 +8,7 @@ FULL_BACKUP="no"
 INC_BACKUP="no"
 VZCTL_PARAM=""
 BACKUP_VES=""
-RSYNC_OPTS=""
+RSYNC_OPTS="$RSYNC_OPTS"
 TEMPLATES="yes"
 
 # COMMANDLINE PARSING
@@ -69,6 +69,10 @@ if ! which vzctl &>/dev/null; then
   exit 1
 fi
 
+if [ "$TERM" != "" ]; then
+  RSYNC_OPTS="$RSYNC_OPTS --progress"
+fi
+
 if [ "$TEMPLATES" = "yes" ]; then
   TEMPLATE_DIR=$( source /etc/vz/vz.conf; echo $TEMPLATE )
   RSYNC_OPTS="$RSYNC_OPTS --include=$TEMPLATE_DIR/*"
@@ -78,7 +82,10 @@ if [ "$INC_BACKUP" = "yes" ]; then
   RSYNC_OPTS="$RSYNC_OPTS --exclude=$( VEID=; source /etc/vz/vz.conf; echo "$VE_PRIVATE*/root.hdd/root.hdd" )"
 fi
 
-test "$SUSPEND" = "no" && VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
+if [ "$SUSPEND" = "no" ]; then
+  VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
+fi
+
 
 # LOCKFILE
 test -f /var/run/vzbackup.pid && exit 0
@@ -111,7 +118,7 @@ if [ "$FULL_BACKUP" = "yes" ]; then
   fi
 fi
 
-nice -n19 ionice -c3 rsync -avz -e "ssh -c arcfour" --{bwlimit=50000,ignore-times,delete-before,inplace,progress} $RSYNC_OPTS --exclude="/vz/*/*" /vz $DESTINATION
+nice -n19 ionice -c3 rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPTS --exclude="/vz/*/*" /vz $DESTINATION
 
 if [ "$FULL_BACKUP" = "yes" ]; then
   ssh $( echo $DESTINATION | cut -d\: -f1 ) "find $( echo $DESTINATION | cut -d\: -f2 )/* -maxdepth 0 -iname '????.??.??' | head -n -$KEEP_COUNT | xargs rm -rf"
