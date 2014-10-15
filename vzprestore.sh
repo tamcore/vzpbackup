@@ -13,7 +13,7 @@ shopt -s extglob
 for param in "$@"; do
   case $param in
     -h|--help)
-      echo "Usage: $0 [--source=<backup-source>] [--templates=<yes|no>] [--list-backups] [--all or VEIDs]"
+      echo "Usage: $0 [--source=<backup-source>] [--templates=<yes|no>] [--list-backups] [--backup-set=<backup-set>] [--all or VEIDs]"
       echo "Defaults:"
       echo "- --source=$SOURCE"
       echo "- --templates=$TEMPLATES"
@@ -90,9 +90,9 @@ else
   done
 fi
 
-rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPTS $RESTORE_SOURCES $VE_PRIVATE
+rsync -avz -e "ssh -c arcfour" $RSYNC_OPTS $RESTORE_SOURCES $VE_PRIVATE
 
 if [ "$TEMPLATES" = "yes" ]; then
   TEMPLATE_DIR=$( source /etc/vz/vz.conf; echo $TEMPLATE )
-  rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPTS $SOURCE/$RESTORE_SET/$TEMPLATE_DIR $TEMPLATE_DIR/
+  rsync -avz -e "ssh -c arcfour" $RSYNC_OPTS $SOURCE/$RESTORE_SET/$TEMPLATE_DIR $TEMPLATE_DIR/
 fi

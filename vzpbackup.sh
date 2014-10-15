@@ -118,7 +118,7 @@ if [ "$FULL_BACKUP" = "yes" ]; then
   fi
 fi
 
-rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPTS --exclude="/vz/*/*" /vz $DESTINATION
+rsync -avz -e "ssh -c arcfour" $RSYNC_OPTS --exclude="/vz/*/*" /vz $DESTINATION
 
 if [ "$FULL_BACKUP" = "yes" ]; then
   ssh $( echo $DESTINATION | cut -d\: -f1 ) "find $( echo $DESTINATION | cut -d\: -f2 )/* -maxdepth 0 -iname '????.??.??' | head -n -$KEEP_COUNT | xargs rm -rf"
