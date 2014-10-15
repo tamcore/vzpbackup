@@ -90,9 +90,9 @@ else
   done
 fi
 
-rsync -avz -e "ssh -c arcfour" $RSYNC_OPTS $RESTORE_SOURCES $VE_PRIVATE
+rsync -avz $RSYNC_OPTS $RESTORE_SOURCES $VE_PRIVATE
 
 if [ "$TEMPLATES" = "yes" ]; then
   TEMPLATE_DIR=$( source /etc/vz/vz.conf; echo $TEMPLATE )
-  rsync -avz -e "ssh -c arcfour" $RSYNC_OPTS $SOURCE/$RESTORE_SET/$TEMPLATE_DIR $TEMPLATE_DIR/
+  rsync -avz $RSYNC_OPTS $SOURCE/$RESTORE_SET/$TEMPLATE_DIR $TEMPLATE_DIR/
 fi
