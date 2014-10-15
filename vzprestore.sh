@@ -7,6 +7,7 @@ TEMPLATES="yes"
 RESTORE_VES=""
 LIST_BACKUPS="no"
 VE_PRIVATE="/vz/private/"
+RESTORE_SET="."
 
 # COMMANDLINE PARSING
 shopt -s extglob
@@ -30,6 +31,9 @@ for param in "$@"; do
     ;;
     --all)
       RESTORE_VES="all"
+    ;;
+    --backup-set=*)
+      RESTORE_SET=${param#*=}
     ;;
     +([0-9]))
       test "$RESTORE_VES" = "" && RESTORE_VES="$RESTORE_VES $param"
@@ -77,9 +81,13 @@ if [ "$LIST_BACKUPS" = "yes" ]; then
   exit 0
 fi
 
-for VEID in $RESTORE_VES; do
-  RESTORE_SOURCES="$RESTORE_SOURCES $SOURCE/vz/private/$VEID"
-done
+if [ "$RESTORE_VES" = "all" ]; then
+  RESTORE_SOURCES="$RESTORE_SOURCES $SOURCE/$RESTORE_SET/vz/private/"
+else
+  for VEID in $RESTORE_VES; do
+    RESTORE_SOURCES="$RESTORE_SOURCES $SOURCE/$RESTORE_SET/vz/private/$VEID"
+  done
+fi
 
 rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPTS $RESTORE_SOURCES /vz/private
 
