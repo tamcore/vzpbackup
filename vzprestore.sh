@@ -6,7 +6,6 @@ RSYNC_OPTS="$RSYNC_OPTS"
 TEMPLATES="yes"
 RESTORE_VES=""
 LIST_BACKUPS="no"
-VE_PRIVATE="/vz/private/"
 RESTORE_SET="."
 
 # COMMANDLINE PARSING
@@ -67,6 +66,8 @@ function _list_backups {
 }
 
 # SCRIPT
+VE_PRIVATE="$( source /etc/vz/vz.conf; echo $VE_PRIVATE )"
+
 if [ "$LIST_BACKUPS" = "yes" ]; then
   echo "Available Backups:"
   _list_backups $SOURCE . $VE_PRIVATE
@@ -82,14 +83,14 @@ if [ "$LIST_BACKUPS" = "yes" ]; then
 fi
 
 if [ "$RESTORE_VES" = "all" ]; then
-  RESTORE_SOURCES="$RESTORE_SOURCES $SOURCE/$RESTORE_SET/vz/private/"
+  RESTORE_SOURCES="$RESTORE_SOURCES $SOURCE/$RESTORE_SET/$VE_PRIVATE"
 else
   for VEID in $RESTORE_VES; do
-    RESTORE_SOURCES="$RESTORE_SOURCES $SOURCE/$RESTORE_SET/vz/private/$VEID"
+    RESTORE_SOURCES="$RESTORE_SOURCES $SOURCE/$RESTORE_SET/$VE_PRIVATE/$VEID"
   done
 fi
 
-rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPTS $RESTORE_SOURCES /vz/private
+rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPTS $RESTORE_SOURCES $VE_PRIVATE
 
 if [ "$TEMPLATES" = "yes" ]; then
   TEMPLATE_DIR=$( source /etc/vz/vz.conf; echo $TEMPLATE )
