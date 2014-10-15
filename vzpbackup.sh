@@ -69,10 +69,6 @@ if ! which vzctl &>/dev/null; then
   exit 1
 fi
 
-if [ "$TERM" != "" ]; then
-  RSYNC_OPTS="$RSYNC_OPTS --progress"
-fi
-
 if [ "$TEMPLATES" = "yes" ]; then
   TEMPLATE_DIR=$( source /etc/vz/vz.conf; echo $TEMPLATE )
   RSYNC_OPTS="$RSYNC_OPTS --include=$TEMPLATE_DIR/*"
@@ -85,7 +81,6 @@ fi
 if [ "$SUSPEND" = "no" ]; then
   VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
 fi
-
 
 # LOCKFILE
 test -f /var/run/vzbackup.pid && exit 0
