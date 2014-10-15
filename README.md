@@ -43,7 +43,36 @@ The backupscript was initially based on the Image-based backup section of [openv
 	is included in the snapshot.
 	Default is no
 
-## RESTORE: vzprestore.sh (coming in the next months)
+**--templates=<\yes|no\>**
+
+	If set to yes, we'll also backup our templates.
+	Default is yes
+
+## RESTORE: vzprestore.sh
+
+**--all or VEIDs**
+
+	Tells the script if we want to restore all backed up VEs (--all),
+	or only specified ones. If --all is set, additional passed VEIDs
+	are ignored.
+
+**--source=\<backup-source\>**
+
+	Allows to specifiy an rsync-compatbile backup source.
+	Default is /vz/backup
+
+**--templates=\<yes|no\>**
+
+	If set to yes, we'll also restore our templates.
+
+**--list-backups**
+
+	Prints a list of all available backups and backupsets.
+
+**--backup-set=\<backupset\>**
+
+	Define from which backupset we're restoring.
+	Default is the current one
 
 ## AUTHOR
 Philipp 'TamCore' Born <philipp {at} tamcore {dot} eu>
