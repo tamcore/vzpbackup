@@ -94,5 +94,5 @@ rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPT
 
 if [ "$TEMPLATES" = "yes" ]; then
   TEMPLATE_DIR=$( source /etc/vz/vz.conf; echo $TEMPLATE )
-  rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPTS $SOURCE$TEMPLATE_DIR/ /vz$TEMPLATE_DIR/
+  rsync -avz -e "ssh -c arcfour" --{ignore-times,delete-before,inplace} $RSYNC_OPTS $SOURCE/$RESTORE_SET/$TEMPLATE_DIR $TEMPLATE_DIR/
 fi
