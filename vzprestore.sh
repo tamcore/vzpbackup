@@ -55,7 +55,7 @@ fi
 # FUNCTIONS
 function _list_backups {
   echo "- Set '${2/^\.\$/current}'"
-  CURRENT_SET="$( rsync $1/$2/$3 | grep -oE '[0-9]+$' )"
+  CURRENT_SET="$( rsync $RSYNC_OPTS $1/$2/$3 | grep -oE '[0-9]+$' )"
   if [ "$CURRENT_SET" != "" ]; then
     for VEID in $CURRENT_SET; do
       echo "-- $VEID"
@@ -72,7 +72,7 @@ if [ "$LIST_BACKUPS" = "yes" ]; then
   echo "Available Backups:"
   _list_backups $SOURCE . $VE_PRIVATE
 
-  BACKUP_SETS="$( rsync $SOURCE | grep -oE '[0-9]+\.[0-9]+\.[0-9]+$' )"
+  BACKUP_SETS="$( rsync $RSYNC_OPTS $SOURCE | grep -oE '[0-9]+\.[0-9]+\.[0-9]+$' )"
   if [ "$BACKUP_SETS" != "" ]; then
     for BACKUP_SET in $BACKUP_SETS; do
       echo
