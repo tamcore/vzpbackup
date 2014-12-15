@@ -83,8 +83,19 @@ if [ "$SUSPEND" = "no" ]; then
 fi
 
 # LOCKFILE
-test -f /var/run/vzbackup.pid && exit 0
-touch /var/run/vzbackup.pid
+if [ -f /var/run/vzbackup.pid ]
+then
+  OLD_PID=$( cat /var/run/vzbackup.pid )
+  if [ -d /proc/${OLD_PID} ]
+  then
+    echo "There's already a backup running.. Aborting.."
+    pstree -p $( cat /var/run/vzbackup.pid )
+    exit 0
+  else
+    echo "Mh. There's a lockfile. But no backup is running.. Ignoring it.."
+  fi
+fi
+echo $$ > /var/run/vzbackup.pid
 trap "rm /var/run/vzbackup.pid" EXIT
 
 # SCRIPT
