@@ -10,13 +10,14 @@ VZCTL_PARAM=""
 BACKUP_VES=""
 RSYNC_OPTS="$RSYNC_OPTS"
 TEMPLATES="yes"
+declare -x EXCLUDES
 
 # COMMANDLINE PARSING
 shopt -s extglob
 for param in "$@"; do
   case $param in
     -h|--help)
-      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>] [--templates=<yes|no>] [--full or --inc(cremental)] [--all or VEIDs]"
+      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>] [--templates=<yes|no>] [--exclude=<VEID>] [--full or --inc(cremental)] [--all or VEIDs]"
       echo "Defaults:"
       echo "- --destination=$DESTINATION"
       echo "- --keep-count=$KEEP_COUNT"
@@ -40,6 +41,9 @@ for param in "$@"; do
     ;;
     --templates=+(yes|no))
       TEMPLATES=${param#*=}
+    ;;
+    --exclude=+([0-9]))
+      EXCLUDES[${param#*=}]=${param#*=}
     ;;
     --all)
       for VEID in $( vzlist -a -H -o ctid ); do
@@ -100,19 +104,21 @@ trap "rm /var/run/vzbackup.pid" EXIT
 
 # SCRIPT
 for VEID in $BACKUP_VES; do
-  if [ -f "/etc/vz/conf/$VEID.conf" ]; then
-    VE_PRIVATE=$( source /etc/vz/conf/$VEID.conf; echo $VE_PRIVATE )
-    if [ "$INC_BACKUP" = "yes" ]; then
-      vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
-    elif [ "$FULL_BACKUP" = "yes" ]; then
-      vzctl snapshot-list $VEID -H -o uuid | \
-      while read UUID; do
-        vzctl snapshot-delete $VEID --id $UUID
-      done
-      vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
-      vzctl compact $VEID
+  if [ "x${EXCLUDES[$VEID]}" = "x" ]; then
+    if [ -f "/etc/vz/conf/$VEID.conf" ]; then
+      VE_PRIVATE=$( source /etc/vz/conf/$VEID.conf; echo $VE_PRIVATE )
+      if [ "$INC_BACKUP" = "yes" ]; then
+        vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
+      elif [ "$FULL_BACKUP" = "yes" ]; then
+        vzctl snapshot-list $VEID -H -o uuid | \
+        while read UUID; do
+          vzctl snapshot-delete $VEID --id $UUID
+        done
+        vzctl snapshot $VEID --id $( uuidgen ) $VZCTL_PARAM
+        vzctl compact $VEID
+      fi
+      RSYNC_OPTS="$RSYNC_OPTS --include=$VE_PRIVATE"
     fi
-    RSYNC_OPTS="$RSYNC_OPTS --include=$VE_PRIVATE"
   fi
 done
 
