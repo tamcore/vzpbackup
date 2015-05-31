@@ -15,6 +15,7 @@ declare -x EXCLUDES
 # COMMANDLINE PARSING
 shopt -s extglob
 for param in "$@"; do
+  value=${param#*=}
   case $param in
     -h|--help)
       echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>] [--templates=<yes|no>] [--exclude=<VEID>] [--full or --inc(cremental)] [--all or VEIDs]"
@@ -25,13 +26,13 @@ for param in "$@"; do
       exit 0
     ;;
     --destination=*)
-      DESTINATION=${param#*=}
+      DESTINATION=$value
     ;;
     --keep-count=+([0-9]))
-      KEEP_COUNT=${param#*=}
+      KEEP_COUNT=$value
     ;;
     --suspend=+(yes|no))
-      SUSPEND=${param#*=}
+      SUSPEND=$value
     ;;
     --full)
       FULL_BACKUP="yes"
@@ -40,10 +41,12 @@ for param in "$@"; do
       INC_BACKUP="yes"
     ;;
     --templates=+(yes|no))
-      TEMPLATES=${param#*=}
+      TEMPLATES=$value
     ;;
     --exclude=+([0-9]))
-      EXCLUDES[${param#*=}]=${param#*=}
+      for VEID in ${value//\,/ }; do
+        EXCLUDES[$VEID]=$VEID
+      done
     ;;
     --all)
       for VEID in $( vzlist -a -H -o ctid ); do
