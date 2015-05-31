@@ -20,6 +20,12 @@ The backupscript was initially based on the Image-based backup section of [openv
 	is named based on the date the set was created (for ex. 2014.10.08).
 	It's recommended to do a full backup monthly and a incremental daily.
 
+**--all or VEIDs**
+
+	Tells the script if we want to back up all VEs (--all),
+	or only specified ones. If --all is set, additional passed VEIDs
+	are ignored.
+
 **--inc or --incremental**
 
 	Start an incremental backup. Incremental means it creates a new snapshot
@@ -47,6 +53,11 @@ The backupscript was initially based on the Image-based backup section of [openv
 
 	If set to yes, we'll also backup our templates.
 	Default is yes
+
+**--exclude=<\veid,veid,veid\>**
+
+	Allows to exclude certain VEs from being backed up, even if --all is given.
+	Multiple VEIDs can be specified as comma separated list.
 
 ## RESTORE: vzprestore.sh
 
