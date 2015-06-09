@@ -43,7 +43,7 @@ for param in "$@"; do
     --templates=+(yes|no))
       TEMPLATES=$value
     ;;
-    --exclude=+([0-9]))
+    --exclude=+([0-9]|\,))
       for VEID in ${value//\,/ }; do
         EXCLUDES[$VEID]=$VEID
       done
