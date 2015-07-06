@@ -49,15 +49,19 @@ The backupscript was initially based on the Image-based backup section of [openv
 	is included in the snapshot.
 	Default is no
 
-**--templates=<\yes|no\>**
+**--templates=\<yes|no\>**
 
 	If set to yes, we'll also backup our templates.
 	Default is yes
 
-**--exclude=<\veid,veid,veid\>**
+**--exclude=\<veid,veid,veid\>**
 
 	Allows to exclude certain VEs from being backed up, even if --all is given.
 	Multiple VEIDs can be specified as comma separated list.
+
+**--verbose(=\<yes\>)
+
+    increase verbosity
 
 ## RESTORE: vzprestore.sh
 

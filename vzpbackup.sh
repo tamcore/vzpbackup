@@ -4,6 +4,7 @@
 DESTINATION="/vz/backup"
 KEEP_COUNT=0
 SUSPEND="no"
+VERBOSE="no"
 FULL_BACKUP="no"
 INC_BACKUP="no"
 VZCTL_PARAM=""
@@ -18,12 +19,16 @@ for param in "$@"; do
   value=${param#*=}
   case $param in
     -h|--help)
-      echo "Usage: $0 [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>] [--templates=<yes|no>] [--exclude=<VEID>] [--full or --inc(cremental)] [--all or VEIDs]"
+      echo "Usage: $0 [--verbose(=yes)] [--destination=<backup-destination>] [--keep-count=<keep count>] [--suspend=<yes|no>] [--templates=<yes|no>] [--exclude=<VEID>] [--full or --inc(cremental)] [--all or VEIDs]"
       echo "Defaults:"
       echo "- --destination=$DESTINATION"
       echo "- --keep-count=$KEEP_COUNT"
       echo "- --suspend=$SUSPEND"
+      echo "- --verbose=$VERBOSE"
       exit 0
+    ;;
+    --verbose|--verbose=yes)
+      VERBOSE="yes"
     ;;
     --destination=*)
       DESTINATION=$value
@@ -89,6 +94,10 @@ if [ "$SUSPEND" = "no" ]; then
   VZCTL_PARAM="$VZCTL_PARAM --skip-suspend"
 fi
 
+if [ "$VERBOSE" = "yes" ]; then
+  RSYNC_OPTS="$RSYNC_OPTS --verbose"
+fi
+
 # LOCKFILE
 if [ -f /var/run/vzbackup.pid ]
 then
@@ -133,7 +142,7 @@ if [ "$FULL_BACKUP" = "yes" ]; then
   fi
 fi
 
-rsync -avz $RSYNC_OPTS --exclude="/vz/*/*" /vz $DESTINATION
+rsync -az $RSYNC_OPTS --exclude="/vz/*/*" /vz $DESTINATION
 
 if [ "$FULL_BACKUP" = "yes" ]; then
   ssh $( echo $DESTINATION | cut -d\: -f1 ) "find $( echo $DESTINATION | cut -d\: -f2 )/* -maxdepth 0 -iname '????.??.??' | head -n -$KEEP_COUNT | xargs rm -rf"
