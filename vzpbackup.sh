@@ -48,7 +48,7 @@ for param in "$@"; do
       done
     ;;
     --all)
-      for VEID in $( vzlist -a -H -o ctid ); do
+      for VEID in $( prlctl list -aHo name ); do
         BACKUP_VES="$BACKUP_VES $VEID"
       done
     ;;
