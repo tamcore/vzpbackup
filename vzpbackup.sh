@@ -83,7 +83,7 @@ if [ "$TEMPLATES" = "yes" ]; then
 fi
 
 if [ "$INC_BACKUP" = "yes" ]; then
-  RSYNC_OPTS="$RSYNC_OPTS --exclude=$( VEID=; source /etc/vz/vz.conf; echo "$VE_PRIVATE*/root.hdd/root.hdd" )"
+  RSYNC_OPTS="$RSYNC_OPTS --exclude=$( VEID=; source /etc/vz/vz.conf; echo "$VE_PRIVATE*/*.hdd/*.hds" )"
 fi
 
 if [ "$VERBOSE" = "yes" ]; then
