@@ -109,8 +109,8 @@ trap "rm /var/run/vzbackup.pid" EXIT
 # SCRIPT
 for VEID in $BACKUP_VES; do
   if [ "x${EXCLUDES[$VEID]}" = "x" ]; then
-    if [ -f "/etc/vz/conf/$VEID.conf" ]; then
-      VE_PRIVATE=$( source /etc/vz/conf/$VEID.conf; echo $VE_PRIVATE )
+    VE_PRIVATE=$(prlctl list -i $VEID 2>&1 | sed -rn 's/^Home: (.*)/\1/p')
+    if [ "x$VE_PRIVATE" != "x" ]; then
       if [ "$INC_BACKUP" = "yes" ]; then
         prlctl snapshot $VEID
       elif [ "$FULL_BACKUP" = "yes" ]; then
