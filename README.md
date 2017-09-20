@@ -42,13 +42,6 @@ The backupscript was initially based on the Image-based backup section of [openv
 	backups based on them are held on stock
 	Default is 0
 
-**--suspend=\<yes|no\>**
-
-	Allows to specify whether a container should be suspended during
-	snapshot creation or not. If yes is given, the containers memory
-	is included in the snapshot.
-	Default is no
-
 **--templates=\<yes|no\>**
 
 	If set to yes, we'll also backup our templates.
