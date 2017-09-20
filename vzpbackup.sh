@@ -76,6 +76,8 @@ if ! which prlctl &>/dev/null; then
 fi
 
 if [ "$TEMPLATES" = "yes" ]; then
+  # HACK: Dirty hack to include vmtemplates in backups
+  RSYNC_OPTS="$RSYNC_OPTS $(prlctl list -tHoname | while read TPL; do prlctl list -i $TPL | grep ^Home | awk '{printf "--include=" $NF"* "}'; done)"
   TEMPLATE_DIR=$( source /etc/vz/vz.conf; echo $TEMPLATE )
   RSYNC_OPTS="$RSYNC_OPTS --include=$TEMPLATE_DIR/*"
 fi
