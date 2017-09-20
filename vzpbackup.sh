@@ -11,7 +11,7 @@ VZCTL_PARAM=""
 BACKUP_VES=""
 RSYNC_OPTS="$RSYNC_OPTS"
 TEMPLATES="yes"
-declare -x EXCLUDES
+declare -A EXCLUDES
 
 # COMMANDLINE PARSING
 shopt -s extglob
