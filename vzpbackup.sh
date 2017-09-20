@@ -42,7 +42,7 @@ for param in "$@"; do
     --templates=+(yes|no))
       TEMPLATES=$value
     ;;
-    --exclude=+([0-9]|\,))
+    --exclude=*)
       for VEID in ${value//\,/ }; do
         EXCLUDES[$VEID]=$VEID
       done
@@ -52,7 +52,7 @@ for param in "$@"; do
         BACKUP_VES="$BACKUP_VES $VEID"
       done
     ;;
-    +([0-9]))
+    *)
       BACKUP_VES="$BACKUP_VES $param"
     ;;
   esac
