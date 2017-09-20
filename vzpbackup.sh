@@ -70,8 +70,8 @@ if [ "$INC_BACKUP" = "no" ] && [ "$FULL_BACKUP" = "no" ]; then
   exit 1
 fi
 
-if ! which vzctl &>/dev/null; then
-  echo "Couldn't find vzctl in \$PATH. Are you sure it's there?"
+if ! which prlctl &>/dev/null; then
+  echo "Couldn't find prlctl in \$PATH. Are you sure it's there?"
   exit 1
 fi
 
@@ -110,13 +110,13 @@ for VEID in $BACKUP_VES; do
     if [ -f "/etc/vz/conf/$VEID.conf" ]; then
       VE_PRIVATE=$( source /etc/vz/conf/$VEID.conf; echo $VE_PRIVATE )
       if [ "$INC_BACKUP" = "yes" ]; then
-        vzctl snapshot $VEID --id $( uuidgen ) 
+        prlctl snapshot $VEID
       elif [ "$FULL_BACKUP" = "yes" ]; then
-        vzctl snapshot-list $VEID -H -o uuid | \
+        prlctl snapshot-list $VEID -H | awk '{print $NF}' | egrep -o '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{8}' | \
         while read UUID; do
-          vzctl snapshot-delete $VEID --id $UUID
+          prlctl snapshot-delete $VEID --id $UUID
         done
-        vzctl snapshot $VEID --id $( uuidgen )
+        prlctl snapshot $VEID
       fi
       RSYNC_OPTS="$RSYNC_OPTS --include=$VE_PRIVATE"
     fi
@@ -126,7 +126,7 @@ done
 if [ "$FULL_BACKUP" = "yes" ]; then
   if (( $KEEP_COUNT > 0 )); then
     echo "KEEP_COUNT > 0; keeping backup.."
-    REF_DATE=$( expr $( date --date="$( vzctl snapshot-list $VEID -H -o date | head -n1 )" +%s ) - 86400 )
+    REF_DATE=$( expr $( date --date="$( grep -m1 '<DateTime>' $(prlctl list -i $VEID | grep ^Home | cut -d' ' -f2)/Snapshots.xml | sed -rn 's/.*>(.*)<.*/\1/p' )" +%s ) - 86400 )
     RSYNC_OPTS="--backup --backup-dir=$( date --date="@$REF_DATE" +%Y.%m.%d )"
   fi
 fi
