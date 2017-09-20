@@ -117,7 +117,6 @@ for VEID in $BACKUP_VES; do
           vzctl snapshot-delete $VEID --id $UUID
         done
         vzctl snapshot $VEID --id $( uuidgen )
-        vzctl compact $VEID
       fi
       RSYNC_OPTS="$RSYNC_OPTS --include=$VE_PRIVATE"
     fi
