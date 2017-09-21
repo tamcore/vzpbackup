@@ -114,7 +114,7 @@ for VEID in ${BACKUP_VES}; do
       if [ "${INC_BACKUP}" = "yes" ]; then
         prlctl snapshot ${VEID}
       elif [ "${FULL_BACKUP}" = "yes" ]; then
-        prlctl snapshot-list ${VEID} -H | awk '{print $NF}' | egrep -o '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{8}' | \
+        prlctl snapshot-list ${VEID} -H | awk '{print $NF}' | egrep -o '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}' | \
         while read UUID; do
           prlctl snapshot-delete ${VEID} --id ${UUID}
         done
