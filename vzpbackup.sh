@@ -87,7 +87,7 @@ if [ "${INC_BACKUP}" = "yes" ]; then
 fi
 
 if [ "${VERBOSE}" = "yes" ]; then
-  RSYNC_OPTS="${RSYNC_OPTS} --verbose"
+  RSYNC_OPTS="${RSYNC_OPTS} --verbose --progress"
 fi
 
 # LOCKFILE
