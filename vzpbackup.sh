@@ -47,6 +47,9 @@ for param in "$@"; do
         EXCLUDES[${VEID}]=${VEID}
       done
     ;;
+    --exclude-dir=*)
+        RSYNC_OPTS="${RSYNC_OPTS} --exclude=${value}"
+    ;;
     --all)
       for VEID in $( prlctl list -aHo name ); do
         BACKUP_VES="${BACKUP_VES} ${VEID}"
