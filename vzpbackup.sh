@@ -30,7 +30,7 @@ for param in "$@"; do
     --destination=*)
       DESTINATION=${value}
     ;;
-    --keep-count=+([0-9]))
+    --keep=+([0-9])|--keep-count=+([0-9]))
       KEEP_COUNT=${value}
     ;;
     --full)
