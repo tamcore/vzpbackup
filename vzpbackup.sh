@@ -9,6 +9,7 @@ INC_BACKUP="no"
 BACKUP_VES=""
 RSYNC_OPTS="${RSYNC_OPTS}"
 TEMPLATES="yes"
+QUIET="no"
 declare -A EXCLUDES
 
 # COMMANDLINE PARSING
@@ -41,6 +42,9 @@ for param in "$@"; do
     ;;
     --templates=+(yes|no))
       TEMPLATES=${value}
+    ;;
+    --quiet=+(yes|no))
+      QUIET=${value}
     ;;
     --exclude=*)
       for VEID in ${value//\,/ }; do
@@ -109,6 +113,14 @@ fi
 echo $$ > /var/run/vzbackup.pid
 trap "rm /var/run/vzbackup.pid" EXIT
 
+# SYSLOGGING
+if [ "${QUIET}" == "yes" ]
+then
+  exec 1> >(exec logger -t vzpbackup) 2>&1
+else
+  exec 1> >(exec logger -s -t vzpbackup) 2>&1
+fi
+
 # SCRIPT
 for VEID in ${BACKUP_VES}; do
   if [ "x${EXCLUDES[${VEID}]}" = "x" ]; then
@@ -120,12 +132,15 @@ for VEID in ${BACKUP_VES}; do
         prlctl exec ${VEID} "test -x /root/pre_snapshot.sh && bash /root/pre_snapshot.sh"
       fi
       if [ "${INC_BACKUP}" = "yes" ]; then
+        echo "Creating snapshot for ${VEID}"
         prlctl snapshot ${VEID}
       elif [ "${FULL_BACKUP}" = "yes" ]; then
         prlctl snapshot-list ${VEID} -H | awk '{print $NF}' | egrep -o '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}' | \
         while read UUID; do
+          echo "Deleting snapshot ${UUID} from ${VEID}"
           prlctl snapshot-delete ${VEID} --id ${UUID}
         done
+        echo "Creating snapshot for ${VEID}"
         prlctl snapshot ${VEID}
       fi
       if [ "${VE_STATE}" == "running" ]
