@@ -134,6 +134,11 @@ for VEID in ${BACKUP_VES}; do
       if [ "${INC_BACKUP}" = "yes" ]; then
         echo "Creating snapshot for ${VEID}"
         prlctl snapshot ${VEID}
+        if [ $? -gt 0 ]
+        then
+          echo "Failed to create snapshot for ${VEID}"
+          rm -rf ${VE_PRIVATE}/dump/*.fail
+        fi
       elif [ "${FULL_BACKUP}" = "yes" ]; then
         prlctl snapshot-list ${VEID} -H | awk '{print $NF}' | egrep -o '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}' | \
         while read UUID; do
@@ -142,6 +147,11 @@ for VEID in ${BACKUP_VES}; do
         done
         echo "Creating snapshot for ${VEID}"
         prlctl snapshot ${VEID}
+        if [ $? -gt 0 ]
+        then
+          echo "Failed to create snapshot for ${VEID}"
+          rm -rf ${VE_PRIVATE}/dump/*.fail
+        fi
       fi
       if [ "${VE_STATE}" == "running" ]
       then
