@@ -114,7 +114,7 @@ for VEID in ${BACKUP_VES}; do
   if [ "x${EXCLUDES[${VEID}]}" = "x" ]; then
     VE_PRIVATE=$(prlctl list -i ${VEID} 2>&1 | sed -rn 's/^Home: (.*)/\1/p')
     if [ "x${VE_PRIVATE}" != "x" ]; then
-      prlctl exec ${VEID} "bash /root/pre_snapshot.sh"
+      prlctl exec ${VEID} "test -x /root/pre_snapshot.sh && bash /root/pre_snapshot.sh"
       if [ "${INC_BACKUP}" = "yes" ]; then
         prlctl snapshot ${VEID}
       elif [ "${FULL_BACKUP}" = "yes" ]; then
@@ -124,7 +124,7 @@ for VEID in ${BACKUP_VES}; do
         done
         prlctl snapshot ${VEID}
       fi
-      prlctl exec ${VEID} "bash /root/post_snapshot.sh"
+      prlctl exec ${VEID} "test -x /root/post_snapshot.sh && bash /root/post_snapshot.sh"
       RSYNC_OPTS="${RSYNC_OPTS} --include=${VE_PRIVATE}"
     fi
   fi
