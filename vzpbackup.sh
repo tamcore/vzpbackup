@@ -90,7 +90,7 @@ if [ "${TEMPLATES}" = "yes" ]; then
 fi
 
 if [ "${INC_BACKUP}" = "yes" ]; then
-  RSYNC_OPTS="${RSYNC_OPTS} --exclude=$( VEID=; source /etc/vz/vz.conf; echo "${VE_PRIVATE}*/*.hdd/*.hds" )"
+  RSYNC_OPTS="${RSYNC_OPTS} --ignore-existing"
 fi
 
 if [ "${VERBOSE}" = "yes" ]; then
@@ -168,6 +168,7 @@ if [ "${FULL_BACKUP}" = "yes" ]; then
     REF_DATE=$( expr $( date --date="$( grep -m1 '<DateTime>' $(prlctl list -i ${VEID} | grep ^Home | cut -d' ' -f2)/Snapshots.xml | sed -rn 's/.*>(.*)<.*/\1/p' )" +%s ) - 86400 )
     RSYNC_OPTS="${RSYNC_OPTS} --backup --backup-dir=$( date --date="@${REF_DATE}" +%Y.%m.%d )"
   fi
+  RSYNC_OPTS="${RSYNC_OPTS} --delete"
 fi
 
 rsync -az ${RSYNC_OPTS} --exclude="/vz/*/*" /vz ${DESTINATION}
