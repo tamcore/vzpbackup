@@ -165,7 +165,7 @@ done
 if [ "${FULL_BACKUP}" = "yes" ]; then
   if (( ${KEEP_COUNT} > 0 )); then
     echo "KEEP_COUNT > 0; keeping backup.."
-    RSYNC_OPTS="${RSYNC_OPTS} --backup --backup-dir=${DESTINATION}/$( date +%Y.%m.%d )"
+    RSYNC_OPTS="${RSYNC_OPTS} --backup --backup-dir=$( echo ${DESTINATION} | cut -d\: -f2 )/$( date +%Y.%m.%d )"
   fi
   RSYNC_OPTS="${RSYNC_OPTS} --delete"
 fi
