@@ -165,8 +165,7 @@ done
 if [ "${FULL_BACKUP}" = "yes" ]; then
   if (( ${KEEP_COUNT} > 0 )); then
     echo "KEEP_COUNT > 0; keeping backup.."
-    REF_DATE=$( expr $( date --date="$( grep -m1 '<DateTime>' $(prlctl list -i ${VEID} | grep ^Home | cut -d' ' -f2)/Snapshots.xml | sed -rn 's/.*>(.*)<.*/\1/p' )" +%s ) - 86400 )
-    RSYNC_OPTS="${RSYNC_OPTS} --backup --backup-dir=$( date --date="@${REF_DATE}" +%Y.%m.%d )"
+    RSYNC_OPTS="${RSYNC_OPTS} --backup --backup-dir=${DESTINATION}/$( date +%Y.%m.%d )"
   fi
   RSYNC_OPTS="${RSYNC_OPTS} --delete"
 fi
