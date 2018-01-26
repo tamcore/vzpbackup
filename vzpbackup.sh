@@ -10,6 +10,7 @@ BACKUP_VES=""
 RSYNC_OPTS="${RSYNC_OPTS}"
 TEMPLATES="yes"
 QUIET="no"
+TOSYNC=""
 declare -A EXCLUDES
 
 # COMMANDLINE PARSING
@@ -168,7 +169,7 @@ for VEID in ${BACKUP_VES}; do
       then
         prlctl exec ${VEID} "test -x /root/post_snapshot.sh && bash /root/post_snapshot.sh"
       fi
-      RSYNC_OPTS="${RSYNC_OPTS} --include=${VE_PRIVATE}"
+      TOSYNC="${TOSYNC} ${VE_PRIVATE}"
     fi
   fi
 done
@@ -178,10 +179,9 @@ if [ "${FULL_BACKUP}" = "yes" ]; then
     echo "KEEP_COUNT > 0; keeping backup.."
     RSYNC_OPTS="${RSYNC_OPTS} --backup --backup-dir=$( echo ${DESTINATION} | cut -d\: -f2 )/$( date +%Y.%m.%d )"
   fi
-  RSYNC_OPTS="${RSYNC_OPTS} --delete"
 fi
 
-rsync -az ${RSYNC_OPTS} --exclude="/vz/*/*" /vz ${DESTINATION}
+rsync --archive --compress --relative --delete ${RSYNC_OPTS} ${TOSYNC} ${DESTINATION}
 
 if [ "${FULL_BACKUP}" = "yes" ]; then
   ssh $( echo ${DESTINATION} | cut -d\: -f1 ) "find $( echo ${DESTINATION} | cut -d\: -f2 )/* -maxdepth 0 -iname '????.??.??' | head -n -${KEEP_COUNT} | xargs rm -rf"
