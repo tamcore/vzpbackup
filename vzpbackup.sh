@@ -8,7 +8,8 @@ FULL_BACKUP="no"
 INC_BACKUP="no"
 BACKUP_VES=""
 RSYNC_OPTS="${RSYNC_OPTS}"
-TEMPLATES="yes"
+CTTEMPLATES="no"
+VMTEMPLATES="no"
 QUIET="no"
 TOSYNC=""
 declare -A EXCLUDES
@@ -42,7 +43,14 @@ for param in "$@"; do
       INC_BACKUP="yes"
     ;;
     --templates=+(yes|no))
-      TEMPLATES=${value}
+      CTTEMPLATES=${value}
+      VMTEMPLATES=${value}
+    ;;
+    --cttemplates=+(yes|no))
+      CTTEMPLATES=${value}
+    ;;
+    --vmtemplates=+(yes|no))
+      VMTEMPLATES=${value}
     ;;
     --quiet=+(yes|no))
       QUIET=${value}
@@ -83,11 +91,12 @@ if ! which prlctl &>/dev/null; then
   exit 1
 fi
 
-if [ "${TEMPLATES}" = "yes" ]; then
-  # HACK: Dirty hack to include vmtemplates in backups
-  RSYNC_OPTS="${RSYNC_OPTS} $(prlctl list -tHoname | while read TPL; do prlctl list -i $TPL | grep ^Home | awk '{printf "--include=" $NF"* "}'; done)"
-  TEMPLATE_DIR=$( source /etc/vz/vz.conf; echo ${TEMPLATE} )
-  RSYNC_OPTS="${RSYNC_OPTS} --include=${TEMPLATE_DIR}"
+if [ "${CTTEMPLATES}" = "yes" ]; then
+  TOSYNC="${TOSYNC} $( source /etc/vz/vz.conf; echo ${TEMPLATE} )"
+fi
+
+if [ "${VMTEMPLATES}" = "yes" ]; then
+  TOSYNC="${TOSYNC} $(prlctl list -tHoname | while read TPL; do prlctl list -i $TPL | grep ^Home | awk '{printf $NF" "}' | cut -d'/' -f1-4; done | xargs echo)"
 fi
 
 if [ "${INC_BACKUP}" = "yes" ]; then
