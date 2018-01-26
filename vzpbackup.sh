@@ -127,6 +127,7 @@ for VEID in ${BACKUP_VES}; do
     VE_PRIVATE=$(prlctl list -i ${VEID} 2>&1 | sed -rn 's/^Home: (.*)/\1/p')
     if [ "x${VE_PRIVATE}" != "x" ]; then
       VE_STATE=$(prlctl list -H -o status ${VEID})
+      VE_TYPE=$(prlctl list -H -o type -I ${VEID})
       if [ "${VE_STATE}" == "running" ]
       then
         prlctl exec ${VEID} "test -x /root/pre_snapshot.sh && bash /root/pre_snapshot.sh"
@@ -138,6 +139,11 @@ for VEID in ${BACKUP_VES}; do
         then
           echo "Failed to create snapshot for ${VEID}"
           rm -rf ${VE_PRIVATE}/dump/*.fail
+
+          if [ "${VE_TYPE}" == "CT" ]
+          then
+            vzctl snapshot ${VEID} --skip-dump
+          fi
         fi
       elif [ "${FULL_BACKUP}" = "yes" ]; then
         prlctl snapshot-list ${VEID} -H | awk '{print $NF}' | egrep -o '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}' | \
@@ -151,6 +157,11 @@ for VEID in ${BACKUP_VES}; do
         then
           echo "Failed to create snapshot for ${VEID}"
           rm -rf ${VE_PRIVATE}/dump/*.fail
+
+          if [ "${VE_TYPE}" == "CT" ]
+          then
+            vzctl snapshot ${VEID} --skip-dump
+          fi
         fi
       fi
       if [ "${VE_STATE}" == "running" ]
